@@ -1,8 +1,7 @@
 const express = require('express');
 const employeesRouter = express.Router();
-
 const sqlite3 = require('sqlite3');
-const db = new sqlite3.Database(process.env.TEST_DATABASE || '.database.sqlite');
+const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
 employeesRouter.param("id", (req, res, next, id) => {
     db.get("SELECT * FROM Employee WHERE id = $id", {
@@ -33,14 +32,14 @@ employeesRouter.get("/", (req, res, next) => {
         if (error) {
             next(error);
         } else {
-            res.status(200).json({employees: row});
+            res.status(200).json({employees: row})
         }
     });
 });
 
 employeesRouter.post("/", validateEmployee, (req, res, next) => {
     const newEmployee = req.body.employee;
-    const isCurrentEmployee = req.body.is_current_employee === 0 ? 0 : 1;
+    const isCurrentEmployee = req.body.employee.is_current_employee === 0 ? 0 : 1;
     db.run("INSERT INTO Employee (name, position, wage, is_current_employee) VALUES ($name, $position, $wage, $isCurrentEmployee)", {
         $name: newEmployee.name,
         $position: newEmployee.position,
@@ -56,7 +55,7 @@ employeesRouter.post("/", validateEmployee, (req, res, next) => {
                 } else {
                     res.status(201).json({employee: row});
                 }
-            })
+            });
         }
     });
 });
@@ -67,7 +66,7 @@ employeesRouter.get("/:id", (req, res, next) => {
 
 employeesRouter.put("/:id", validateEmployee, (req, res, next) => {
     const updatedEmployee = req.body.employee;
-    const isCurrentEmployee = req.body.is_current_employee === 0 ? 0 : 1;
+    const isCurrentEmployee = req.body.employee.is_current_employee === 0 ? 0 : 1;
     db.run("UPDATE Employee SET name = $name, position = $position, wage = $wage, is_current_employee = $isCurrentEmployee WHERE id = $id", {
         $name: updatedEmployee.name,
         $position: updatedEmployee.position,
@@ -102,7 +101,7 @@ employeesRouter.delete("/:id", (req, res, next) => {
                 } else {
                     res.status(200).json({employee: row});
                 }
-            })
+            });
         }
     });
 });
