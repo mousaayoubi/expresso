@@ -3,20 +3,24 @@ const employeesRouter = express.Router();
 const sqlite3 = require('sqlite3');
 const db = new sqlite3.Database(process.env.TEST_DATABASE || './database.sqlite');
 
-employeesRouter.param("id", (req, res, next, id) => {
+employeesRouter.param("employeeId", (req, res, next, employeeId) => {
     db.get("SELECT * FROM Employee WHERE id = $id", {
-        $id: id
+        $id: employeeId
     }, (error, row) => {
         if (error) {
             next(error);
         } else if (row) {
-            req.id = row;
+            req.employee = row;
             next();
         } else {
             res.sendStatus(404);
         }
     });
 });
+
+const timesheetsRouter = require('./timesheets');
+
+employeesRouter.use("/:employeeId/timesheets", timesheetsRouter);
 
 const validateEmployee = (req, res, next) => {
     const newEmployee = req.body.employee;
@@ -60,11 +64,11 @@ employeesRouter.post("/", validateEmployee, (req, res, next) => {
     });
 });
 
-employeesRouter.get("/:id", (req, res, next) => {
-    res.status(200).json({employee: req.id});
+employeesRouter.get("/:employeeId", (req, res, next) => {
+    res.status(200).json({employee: req.employee});
 });
 
-employeesRouter.put("/:id", validateEmployee, (req, res, next) => {
+employeesRouter.put("/:employeeId", validateEmployee, (req, res, next) => {
     const updatedEmployee = req.body.employee;
     const isCurrentEmployee = req.body.employee.is_current_employee === 0 ? 0 : 1;
     db.run("UPDATE Employee SET name = $name, position = $position, wage = $wage, is_current_employee = $isCurrentEmployee WHERE id = $id", {
@@ -72,12 +76,12 @@ employeesRouter.put("/:id", validateEmployee, (req, res, next) => {
         $position: updatedEmployee.position,
         $wage: updatedEmployee.wage,
         $isCurrentEmployee: isCurrentEmployee,
-        $id: req.params.id
+        $id: req.params.employeeId
     }, (error, row) => {
         if (error) {
             next(error);
         } else {
-            db.get(`SELECT * FROM Employee WHERE id = ${req.params.id}`, (error, row) => {
+            db.get(`SELECT * FROM Employee WHERE id = ${req.params.employeeId}`, (error, row) => {
                 if (error) {
                     next(error);
                 } else {
@@ -88,14 +92,14 @@ employeesRouter.put("/:id", validateEmployee, (req, res, next) => {
     });
 });
 
-employeesRouter.delete("/:id", (req, res, next) => {
+employeesRouter.delete("/:employeeId", (req, res, next) => {
     db.run("UPDATE Employee SET is_current_employee = 0 WHERE id = $id", {
-        $id: req.params.id
+        $id: req.params.employeeId
     }, (error, row) => {
         if (error) {
             next(error);
         } else {
-            db.get(`SELECT * FROM Employee WHERE id = ${req.params.id}`, (error, row) => {
+            db.get(`SELECT * FROM Employee WHERE id = ${req.params.employeeId}`, (error, row) => {
                 if (error) {
                     next(error);
                 } else {

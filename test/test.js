@@ -107,7 +107,7 @@ describe('Timesheet Table', function() {
     });
   });
 
-  it('should have hours, rate, date, and employee_id with appropriate data types', function(done) {
+  it('should have hours, rate, date, and employee_id columns with appropriate data types', function(done) {
     prodDb.run("INSERT INTO Timesheet (hours, rate, date, employee_id) VALUES (10, 2.5, 1506112351471, 1)", function(error) {
       if (error) {
         done(new Error(error));
@@ -444,7 +444,7 @@ describe('PUT /api/employees/:id', function() {
         .put('/api/employees/1')
         .send({employee: updatedEmployee})
         .then(function() {
-          testDb.get('SELECT * FROM Employee WHERE Employee.id = 1', function(error, employee) {
+          testDb.get('SELECT * FROM employee WHERE employee.id = 1', function(error, employee) {
             if (error) {
               throw new Error(error);
             }
