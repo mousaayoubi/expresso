@@ -444,7 +444,7 @@ describe('PUT /api/employees/:id', function() {
         .put('/api/employees/1')
         .send({employee: updatedEmployee})
         .then(function() {
-          testDb.get('SELECT * FROM employee WHERE employee.id = 1', function(error, employee) {
+          testDb.get('SELECT * FROM Employee WHERE Employee.id = 1', function(error, employee) {
             if (error) {
               throw new Error(error);
             }

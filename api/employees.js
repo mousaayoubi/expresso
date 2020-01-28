@@ -12,12 +12,21 @@ employeesRouter.param("id", (req, res, next, id) => {
             next(error);
         } else if (row) {
             req.id = row;
-            next()
+            next();
         } else {
             res.sendStatus(404);
         }
     });
 });
+
+const validateEmployee = (req, res, next) => {
+    const newEmployee = req.body.employee;
+    if (!newEmployee.name || !newEmployee.position || !newEmployee.wage) {
+        res.sendStatus(400);
+    } else {
+        next();
+    }
+};
 
 employeesRouter.get("/", (req, res, next) => {
     db.all("SELECT * FROM Employee WHERE is_current_employee = 1", (error, row) => {
@@ -29,23 +38,15 @@ employeesRouter.get("/", (req, res, next) => {
     });
 });
 
-const validateEmployee = (req, res, next) => {
-    const newEmployee = req.body.employee;
-    if (!newEmployee.name || !newEmployee.position || !newEmployee.wage || !newEmployee.is_current_employee) {
-        res.sendStatus(400);
-    } else {
-        next();
-    }
-};
-
 employeesRouter.post("/", validateEmployee, (req, res, next) => {
     const newEmployee = req.body.employee;
+    const isCurrentEmployee = req.body.is_current_employee === 0 ? 0 : 1;
     db.run("INSERT INTO Employee (name, position, wage, is_current_employee) VALUES ($name, $position, $wage, $isCurrentEmployee)", {
         $name: newEmployee.name,
         $position: newEmployee.position,
         $wage: newEmployee.wage,
-        $isCurrentEmployee: newEmployee.is_current_employee
-    }, (error, row) => {
+        $isCurrentEmployee: isCurrentEmployee
+    }, function (error) {
         if (error) {
             next(error);
         } else {
@@ -66,11 +67,12 @@ employeesRouter.get("/:id", (req, res, next) => {
 
 employeesRouter.put("/:id", validateEmployee, (req, res, next) => {
     const updatedEmployee = req.body.employee;
-    db.run("Update Employee SET name = $name, position = $position, wage = $wage, is_current_employee = $isCurrentEmployee WHERE id = $id)", {
+    const isCurrentEmployee = req.body.is_current_employee === 0 ? 0 : 1;
+    db.run("UPDATE Employee SET name = $name, position = $position, wage = $wage, is_current_employee = $isCurrentEmployee WHERE id = $id", {
         $name: updatedEmployee.name,
         $position: updatedEmployee.position,
         $wage: updatedEmployee.wage,
-        $isCurrentEmployee: updatedEmployee.is_curent_employee,
+        $isCurrentEmployee: isCurrentEmployee,
         $id: req.params.id
     }, (error, row) => {
         if (error) {
@@ -83,6 +85,24 @@ employeesRouter.put("/:id", validateEmployee, (req, res, next) => {
                     res.status(200).json({employee: row});
                 }
             });
+        }
+    });
+});
+
+employeesRouter.delete("/:id", (req, res, next) => {
+    db.run("UPDATE Employee SET is_current_employee = 0 WHERE id = $id", {
+        $id: req.params.id
+    }, (error, row) => {
+        if (error) {
+            next(error);
+        } else {
+            db.get(`SELECT * FROM Employee WHERE id = ${req.params.id}`, (error, row) => {
+                if (error) {
+                    next(error);
+                } else {
+                    res.status(200).json({employee: row});
+                }
+            })
         }
     });
 });
