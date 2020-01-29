@@ -86,4 +86,22 @@ timesheetsRouter.put("/:timesheetId", validateTimesheet, (req, res, next) => {
     });
 });
 
+timesheetsRouter.delete("/:timesheetId", (req, res, next) => {
+    db.run("DELETE FROM Timesheet WHERE id = $id", {
+        $id: req.params.timesheetId
+    }, (error, row) => {
+        if (error) {
+            next(error);
+        } else {
+            db.get(`SELECT * FROM Timesheet WHERE id = ${req.params.timesheetId}`, (error, row) => {
+                if (error) {
+                    next(error);
+                } else {
+                    res.status(204).json({timesheet: row});
+                }
+            });
+        }
+    });
+});
+
 module.exports = timesheetsRouter;
