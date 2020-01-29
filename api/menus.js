@@ -85,17 +85,25 @@ menusRouter.put("/:menuId", validateMenu, (req, res, next) => {
 });
 
 menusRouter.delete("/:menuId", (req, res, next) => {
-    db.run("DELETE FROM Menu WHERE id = $menuId", {
+    db.get("SELECT * FROM MenuItem WHERE menu_id = $menuId", {
         $menuId: req.params.menuId
     }, (error, row) => {
         if (error) {
             next(error);
+        } else if (row) {
+            res.sendStatus(400);
         } else {
-            db.get(`SELECT * FROM Menu WHERE id = $menuId`, (error, row) => {
+            db.run(`DELETE FROM Menu WHERE id = ${req.params.menuId}`, (error, row) => {
                 if (error) {
                     next(error);
                 } else {
-                    res.status(204).json({menu: row});
+                    db.get(`SELECT * FROM Menu WHERE id = ${req.params.menuId}`, (error, row) => {
+                        if (error) {
+                            next(error);
+                        } else {
+                            res.status(204).json({menu: row});
+                        }
+                    });
                 }
             });
         }
