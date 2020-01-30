@@ -2,11 +2,15 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 4000;
 const apiRouter = require('./api/api');
+const path = require('path');
+const serveStatic = require('serve-static');
 
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const morgan = require('morgan');
 const errorhandler = require('errorhandler');
+
+app.use(express.static('public'));
 
 app.use(bodyParser.json());
 app.use(cors());

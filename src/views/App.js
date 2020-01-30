@@ -12,7 +12,7 @@ class App extends Component {
         <div className="App">
           <header>
             <Link to="/" className="logo">
-              <img src='public/img/logo.svg' alt="logo" />
+              <img src='./img/logo.svg' alt="logo" />
             </Link>
           </header>
           <Route exact path="/" component={Landing} />

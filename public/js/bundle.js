@@ -25016,7 +25016,7 @@ var App = function (_Component) {
             _react2.default.createElement(
               _reactRouterDom.Link,
               { to: '/', className: 'logo' },
-              _react2.default.createElement('img', { src: 'public/img/logo.svg', alt: 'logo' })
+              _react2.default.createElement('img', { src: './img/logo.svg', alt: 'logo' })
             )
           ),
           _react2.default.createElement(_reactRouterDom.Route, { exact: true, path: '/', component: _Landing2.default }),
