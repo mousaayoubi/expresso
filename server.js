@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const PORT = process.env.PORT || 4000;
 const apiRouter = require('./api/api');
-const path = require('path');
-const serveStatic = require('serve-static');
+const proxy = require('http-proxy-middleware');
 
 const bodyParser = require('body-parser');
 const cors = require('cors');
